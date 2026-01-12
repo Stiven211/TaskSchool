@@ -1,0 +1,10 @@
+node_modules
+# Build output
+dist/
+
+# Environment files
+.env
+
+# macOS
+.DS_Store
+
