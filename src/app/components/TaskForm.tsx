@@ -6,20 +6,10 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-
-interface Task {
-  id: string;
-  subject: string;
-  type: string;
-  assignedDate: string;
-  dueDate: string;
-  description: string;
-  priority: 'alta' | 'media' | 'baja';
-  completed: boolean;
-}
+import { Task } from '../../types';
 
 interface TaskFormProps {
-  onSave: (task: Omit<Task, 'id' | 'completed'>) => void;
+  onSave: (task: Omit<Task, 'id' | 'completada'>) => void;
   onCancel: () => void;
   editingTask?: Task;
 }
@@ -44,12 +34,12 @@ export function TaskForm({ onSave, onCancel, editingTask }: TaskFormProps) {
   const today = new Date().toISOString().split('T')[0];
   
   const [formData, setFormData] = useState({
-    subject: editingTask?.subject || '',
-    type: editingTask?.type || '',
-    assignedDate: editingTask?.assignedDate || today,
-    dueDate: editingTask?.dueDate || '',
-    description: editingTask?.description || '',
-    priority: editingTask?.priority || 'media' as 'alta' | 'media' | 'baja',
+    materia: editingTask?.materia || '',
+    tipo: editingTask?.tipo || '',
+    fechaAsignada: editingTask?.fechaAsignada || today,
+    fechaEntrega: editingTask?.fechaEntrega || '',
+    descripcion: editingTask?.descripcion || '',
+    prioridad: editingTask?.prioridad || 'media' as 'alta' | 'media' | 'baja',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,17 +49,17 @@ export function TaskForm({ onSave, onCancel, editingTask }: TaskFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-popover rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-          <h2 className="text-xl md:text-2xl text-gray-900">
+        <div className="sticky top-0 bg-popover border-b border-border px-6 py-4 flex items-center justify-between rounded-t-2xl">
+          <h2 className="text-xl md:text-2xl text-foreground">
             {editingTask ? 'Editar Tarea' : 'Nueva Tarea'}
           </h2>
           <button
             onClick={onCancel}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-accent transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -77,15 +67,15 @@ export function TaskForm({ onSave, onCancel, editingTask }: TaskFormProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {/* Subject */}
           <div className="space-y-2">
-            <Label htmlFor="subject" className="text-gray-700">
+            <Label htmlFor="materia" className="text-foreground">
               Materia *
             </Label>
             <Select
-              value={formData.subject}
-              onValueChange={(value) => setFormData({ ...formData, subject: value })}
+              value={formData.materia}
+              onValueChange={(value) => setFormData({ ...formData, materia: value })}
               required
             >
-              <SelectTrigger className="h-12 border-gray-300">
+              <SelectTrigger className="h-12 border-input">
                 <SelectValue placeholder="Selecciona una materia" />
               </SelectTrigger>
               <SelectContent>
@@ -100,30 +90,30 @@ export function TaskForm({ onSave, onCancel, editingTask }: TaskFormProps) {
 
           {/* Type */}
           <div className="space-y-2">
-            <Label htmlFor="type" className="text-gray-700">
+            <Label htmlFor="tipo" className="text-foreground">
               Tipo de tarea *
             </Label>
             <Input
-              id="type"
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              id="tipo"
+              value={formData.tipo}
+              onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
               placeholder="Ej: Ejercicios, Trabajo práctico, Lectura..."
-              className="h-12 border-gray-300"
+              className="h-12 border-input"
               required
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-gray-700">
+            <Label htmlFor="descripcion" className="text-foreground">
               Descripción
             </Label>
             <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              id="descripcion"
+              value={formData.descripcion}
+              onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
               placeholder="Detalles de la tarea..."
-              className="min-h-24 border-gray-300 resize-none"
+              className="min-h-24 border-input resize-none"
               rows={4}
             />
           </div>
@@ -131,41 +121,41 @@ export function TaskForm({ onSave, onCancel, editingTask }: TaskFormProps) {
           {/* Dates */}
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="assignedDate" className="text-gray-700">
+              <Label htmlFor="fechaAsignada" className="text-foreground">
                 Fecha asignada *
               </Label>
               <Input
-                id="assignedDate"
+                id="fechaAsignada"
                 type="date"
-                value={formData.assignedDate}
-                onChange={(e) => setFormData({ ...formData, assignedDate: e.target.value })}
-                className="h-12 border-gray-300"
+                value={formData.fechaAsignada}
+                onChange={(e) => setFormData({ ...formData, fechaAsignada: e.target.value })}
+                className="h-12 border-input"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dueDate" className="text-gray-700">
+              <Label htmlFor="fechaEntrega" className="text-foreground">
                 Fecha de entrega *
               </Label>
               <Input
-                id="dueDate"
+                id="fechaEntrega"
                 type="date"
-                value={formData.dueDate}
-                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                className="h-12 border-gray-300"
+                value={formData.fechaEntrega}
+                onChange={(e) => setFormData({ ...formData, fechaEntrega: e.target.value })}
+                className="h-12 border-input"
                 required
-                min={formData.assignedDate}
+                min={formData.fechaAsignada}
               />
             </div>
           </div>
 
           {/* Priority */}
           <div className="space-y-3">
-            <Label className="text-gray-700">Prioridad *</Label>
+            <Label className="text-foreground">Prioridad *</Label>
             <RadioGroup
-              value={formData.priority}
+              value={formData.prioridad}
               onValueChange={(value: 'alta' | 'media' | 'baja') =>
-                setFormData({ ...formData, priority: value })
+                setFormData({ ...formData, prioridad: value })
               }
               className="flex flex-col md:flex-row gap-4"
             >
@@ -205,13 +195,13 @@ export function TaskForm({ onSave, onCancel, editingTask }: TaskFormProps) {
               type="button"
               variant="outline"
               onClick={onCancel}
-              className="flex-1 h-12 border-2 border-gray-300 hover:bg-gray-50"
+              className="flex-1 h-12 border-2 border-input hover:bg-accent hover-glow"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white"
+              className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground hover-glow"
             >
               {editingTask ? 'Guardar cambios' : 'Guardar tarea'}
             </Button>

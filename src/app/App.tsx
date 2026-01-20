@@ -1,113 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Login } from './components/Login';
 import { Dashboard } from './components/Dashboard';
 import { TaskForm } from './components/TaskForm';
 import { TaskDetail } from './components/TaskDetail';
 import { CalendarView } from './components/CalendarView';
 import { History } from './components/History';
-
-interface Task {
-  id: string;
-  subject: string;
-  type: string;
-  assignedDate: string;
-  dueDate: string;
-  description: string;
-  priority: 'alta' | 'media' | 'baja';
-  completed: boolean;
-  files?: string[];
-}
+import useLocalStorage from '../hooks/useLocalStorage';
+import { useTheme } from '../hooks/useTheme';
+import { Task, User } from '../types';
 
 type View = 'login' | 'dashboard' | 'calendar' | 'history';
 
 export default function App() {
+  const [user, setUser] = useLocalStorage<User | null>('taskSchool_user', null);
+  const [theme] = useTheme(); // Initialize theme
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentView, setCurrentView] = useState<View>('login');
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-  
-  // Sample tasks with realistic data
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      subject: 'Matemáticas',
-      type: 'Ejercicios de álgebra',
-      assignedDate: '2026-01-08',
-      dueDate: '2026-01-12',
-      description: 'Resolver ejercicios del capítulo 5, páginas 120-125. Enfocarse en ecuaciones de segundo grado y sistemas de ecuaciones.',
-      priority: 'alta',
-      completed: false,
-    },
-    {
-      id: '2',
-      subject: 'Lengua y Literatura',
-      type: 'Análisis de texto',
-      assignedDate: '2026-01-07',
-      dueDate: '2026-01-14',
-      description: 'Leer el cuento "El Aleph" de Jorge Luis Borges y escribir un análisis de 2 páginas sobre los símbolos principales.',
-      priority: 'media',
-      completed: false,
-    },
-    {
-      id: '3',
-      subject: 'Ciencias Naturales',
-      type: 'Trabajo práctico',
-      assignedDate: '2026-01-06',
-      dueDate: '2026-01-15',
-      description: 'Investigar sobre el ciclo del agua y crear una presentación visual explicando cada etapa del proceso.',
-      priority: 'baja',
-      completed: false,
-    },
-    {
-      id: '4',
-      subject: 'Historia',
-      type: 'Informe escrito',
-      assignedDate: '2026-01-05',
-      dueDate: '2026-01-11',
-      description: 'Escribir un ensayo de 3 páginas sobre las causas de la Revolución Industrial.',
-      priority: 'alta',
-      completed: false,
-    },
-    {
-      id: '5',
-      subject: 'Inglés',
-      type: 'Vocabulario',
-      assignedDate: '2026-01-04',
-      dueDate: '2026-01-08',
-      description: 'Estudiar las 50 palabras nuevas de la unidad 6 y prepararse para la prueba oral.',
-      priority: 'alta',
-      completed: true,
-    },
-    {
-      id: '6',
-      subject: 'Química',
-      type: 'Problemas de estequiometría',
-      assignedDate: '2025-12-28',
-      dueDate: '2026-01-09',
-      description: 'Resolver los 15 problemas de la guía de estequiometría.',
-      priority: 'media',
-      completed: true,
-    },
-    {
-      id: '7',
-      subject: 'Educación Física',
-      type: 'Investigación sobre deportes',
-      assignedDate: '2025-12-20',
-      dueDate: '2026-01-05',
-      description: 'Investigar sobre la historia del fútbol y presentar en clase.',
-      priority: 'baja',
-      completed: true,
-    },
-  ]);
 
-  const handleLogin = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Load tasks from localStorage when user changes
+  useEffect(() => {
+    const key = user?.isGuest ? 'taskSchool_tasks_guest' : 'taskSchool_tasks';
+    const saved = localStorage.getItem(key);
+    setTasks(saved ? JSON.parse(saved) : []);
+  }, [user]);
+
+  // Save tasks to localStorage when tasks change
+  useEffect(() => {
+    const key = user?.isGuest ? 'taskSchool_tasks_guest' : 'taskSchool_tasks';
+    localStorage.setItem(key, JSON.stringify(tasks));
+  }, [tasks, user]);
+
+  const handleLogin = (user: User) => {
+    setUser(user);
     setIsLoggedIn(true);
     setCurrentView('dashboard');
   };
 
   const handleLogout = () => {
+    setUser(null);
     setIsLoggedIn(false);
     setCurrentView('login');
   };
@@ -123,11 +59,11 @@ export default function App() {
     setShowTaskDetail(false);
   };
 
-  const handleSaveTask = (taskData: Omit<Task, 'id' | 'completed'>) => {
+  const handleSaveTask = (taskData: Omit<Task, 'id' | 'completada'>) => {
     if (editingTask) {
       // Update existing task
-      setTasks(tasks.map(t => 
-        t.id === editingTask.id 
+      setTasks(tasks.map(t =>
+        t.id === editingTask.id
           ? { ...t, ...taskData }
           : t
       ));
@@ -136,14 +72,20 @@ export default function App() {
       const newTask: Task = {
         ...taskData,
         id: Date.now().toString(),
-        completed: false,
+        completada: false,
       };
       setTasks([...tasks, newTask]);
     }
     setShowTaskForm(false);
     setEditingTask(undefined);
   };
-
+  const handleToggleComplete = (taskId: string) => {
+    setTasks(tasks.map(t =>
+      t.id === taskId
+        ? { ...t, completada: !t.completada }
+        : t
+    ));
+  };
   const handleCancelForm = () => {
     setShowTaskForm(false);
     setEditingTask(undefined);
@@ -159,14 +101,6 @@ export default function App() {
     setSelectedTask(undefined);
   };
 
-  const handleToggleComplete = (taskId: string) => {
-    setTasks(tasks.map(t =>
-      t.id === taskId
-        ? { ...t, completed: !t.completed }
-        : t
-    ));
-  };
-
   const handleViewCalendar = () => {
     setCurrentView('calendar');
   };
@@ -180,11 +114,15 @@ export default function App() {
   };
 
   if (!isLoggedIn && currentView === 'login') {
-    return <Login onLogin={handleLogin} />;
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Login onLogin={handleLogin} />
+      </div>
+    );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-background text-foreground">
       {currentView === 'dashboard' && (
         <Dashboard
           tasks={tasks}
@@ -230,6 +168,6 @@ export default function App() {
           onToggleComplete={handleToggleComplete}
         />
       )}
-    </>
+    </div>
   );
 }

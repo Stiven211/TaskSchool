@@ -1,20 +1,10 @@
 import { useState } from 'react';
-import { Plus, BookOpen, Edit, Check, Calendar, BarChart3, LogOut } from 'lucide-react';
+import { Plus, BookOpen, Edit, Check, Calendar, BarChart3, LogOut, Smile } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Badge } from './ui/badge';
-
-interface Task {
-  id: string;
-  subject: string;
-  type: string;
-  assignedDate: string;
-  dueDate: string;
-  description: string;
-  priority: 'alta' | 'media' | 'baja';
-  completed: boolean;
-  files?: string[];
-}
+import { ThemeToggle } from './ui/ThemeToggle';
+import { Task } from '../../types';
 
 interface DashboardProps {
   onAddTask: () => void;
@@ -39,8 +29,8 @@ export function Dashboard({
 }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('pending');
 
-  const pendingTasks = tasks.filter(t => !t.completed);
-  const completedTasks = tasks.filter(t => t.completed);
+  const pendingTasks = tasks.filter(t => !t.completada);
+  const completedTasks = tasks.filter(t => t.completada);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -69,29 +59,29 @@ export function Dashboard({
   };
 
   const TaskCard = ({ task }: { task: Task }) => (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-card rounded-xl border border-border p-4 md:p-5 shadow-sm hover:shadow-md transition-smooth">
       <div className="flex items-start gap-3 mb-3">
-        <div className={`w-10 h-10 ${getSubjectColor(task.subject)} rounded-lg flex items-center justify-center flex-shrink-0`}>
+        <div className={`w-10 h-10 ${getSubjectColor(task.materia)} rounded-lg flex items-center justify-center flex-shrink-0`}>
           <BookOpen className="w-5 h-5 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-gray-900 mb-1 truncate">{task.subject}</h3>
-          <p className="text-sm text-gray-600">{task.type}</p>
+          <h3 className="text-foreground mb-1 truncate">{task.materia}</h3>
+          <p className="text-sm text-muted-foreground">{task.tipo}</p>
         </div>
-        <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
-          {task.priority}
+        <Badge variant="outline" className={`${getPriorityColor(task.prioridad)} text-xs`}>
+          {task.prioridad}
         </Badge>
       </div>
 
       <div className="space-y-2 mb-4">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Asignada:</span>
-          <span className="text-gray-700">{task.assignedDate}</span>
+          <span className="text-muted-foreground">Asignada:</span>
+          <span className="text-foreground">{task.fechaAsignada}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Entrega:</span>
-          <span className={`${task.completed ? 'text-gray-700' : 'text-red-600'}`}>
-            {task.dueDate}
+          <span className="text-muted-foreground">Entrega:</span>
+          <span className={`${task.completada ? 'text-foreground' : 'text-red-600'}`}>
+            {task.fechaEntrega}
           </span>
         </div>
       </div>
@@ -101,24 +91,24 @@ export function Dashboard({
           variant="outline"
           size="sm"
           onClick={() => onViewTask(task)}
-          className="flex-1 border-gray-300 hover:bg-gray-50"
+          className="flex-1 border-border hover:bg-accent hover-glow"
         >
           Ver detalles
         </Button>
-        {!task.completed ? (
+        {!task.completada ? (
           <>
             <Button
               variant="outline"
               size="sm"
               onClick={() => onEditTask(task)}
-              className="border-gray-300 hover:bg-gray-50"
+              className="border-border hover:bg-accent hover-glow"
             >
               <Edit className="w-4 h-4" />
             </Button>
             <Button
               size="sm"
               onClick={() => onToggleComplete(task.id)}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white hover-glow"
             >
               <Check className="w-4 h-4" />
             </Button>
@@ -127,7 +117,7 @@ export function Dashboard({
           <Button
             size="sm"
             onClick={() => onToggleComplete(task.id)}
-            className="bg-gray-600 hover:bg-gray-700 text-white"
+            className="bg-gray-600 hover:bg-gray-700 text-white hover-glow"
           >
             Deshacer
           </Button>
@@ -137,16 +127,16 @@ export function Dashboard({
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+      <header className="bg-card border-b border-border sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-xl md:text-2xl text-gray-900">TaskSchool</h1>
+              <h1 className="text-xl md:text-2xl text-foreground">TaskSchool</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -167,6 +157,7 @@ export function Dashboard({
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Historial
               </Button>
+              <ThemeToggle />
               <Button variant="ghost" size="sm" onClick={onLogout}>
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -178,7 +169,7 @@ export function Dashboard({
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 bg-white border border-gray-200 p-1 h-auto">
+          <TabsList className="grid w-full grid-cols-3 mb-6 bg-card border border-border p-1 h-auto">
             <TabsTrigger
               value="pending"
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-2.5"
@@ -202,11 +193,11 @@ export function Dashboard({
           <TabsContent value="pending" className="mt-0">
             {pendingTasks.length === 0 ? (
               <div className="text-center py-16">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Smile className="w-8 h-8 text-accent-foreground" />
                 </div>
-                <h3 className="text-gray-900 mb-2">¡Todo al día!</h3>
-                <p className="text-gray-600">No tienes tareas pendientes</p>
+                <h3 className="text-foreground mb-2">¡Aún no tienes tareas!</h3>
+                <p className="text-muted-foreground">Agrega una con el botón + 😊</p>
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -259,7 +250,7 @@ export function Dashboard({
       {/* Floating Action Button */}
       <button
         onClick={onAddTask}
-        className="fixed right-6 bottom-6 w-14 h-14 md:w-16 md:h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50"
+        className="fixed right-6 bottom-6 w-14 h-14 md:w-16 md:h-16 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-smooth hover-glow flex items-center justify-center z-50"
       >
         <Plus className="w-6 h-6 md:w-7 md:h-7" strokeWidth={2.5} />
       </button>

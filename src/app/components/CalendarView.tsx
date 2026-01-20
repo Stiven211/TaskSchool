@@ -2,17 +2,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ArrowLeft, BookOpen } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-
-interface Task {
-  id: string;
-  subject: string;
-  type: string;
-  assignedDate: string;
-  dueDate: string;
-  description: string;
-  priority: 'alta' | 'media' | 'baja';
-  completed: boolean;
-}
+import { Task } from '../../types';
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -56,7 +46,7 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
   const getTasksForDate = (date: Date | null) => {
     if (!date) return [];
     const dateStr = date.toISOString().split('T')[0];
-    return tasks.filter(task => task.dueDate === dateStr);
+    return tasks.filter(task => task.fechaEntrega === dateStr);
   };
 
   const previousMonth = () => {
@@ -78,15 +68,15 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
   const selectedTasks = selectedDate ? getTasksForDate(selectedDate) : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+      <header className="bg-card border-b border-border sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={onBack}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl md:text-2xl text-gray-900">Calendario</h1>
+            <h1 className="text-xl md:text-2xl text-foreground">Calendario</h1>
           </div>
         </div>
       </header>
@@ -95,10 +85,10 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Calendar */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
               {/* Month Navigation */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600">
-                <h2 className="text-lg text-white">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-primary to-primary/80">
+                <h2 className="text-lg text-primary-foreground">
                   {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h2>
                 <div className="flex gap-2">
@@ -106,7 +96,7 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
                     variant="ghost"
                     size="sm"
                     onClick={previousMonth}
-                    className="text-white hover:bg-white/20"
+                    className="text-primary-foreground hover:bg-primary-foreground/20"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </Button>
@@ -114,7 +104,7 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
                     variant="ghost"
                     size="sm"
                     onClick={nextMonth}
-                    className="text-white hover:bg-white/20"
+                    className="text-primary-foreground hover:bg-primary-foreground/20"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </Button>
@@ -126,7 +116,7 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
                 {/* Days of week */}
                 <div className="grid grid-cols-7 gap-2 mb-2">
                   {daysOfWeek.map(day => (
-                    <div key={day} className="text-center text-sm text-gray-600 py-2">
+                    <div key={day} className="text-center text-sm text-muted-foreground py-2">
                       {day}
                     </div>
                   ))}
@@ -146,9 +136,9 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
                         className={`
                           aspect-square p-1 md:p-2 rounded-lg transition-all relative
                           ${!day ? 'invisible' : ''}
-                          ${isToday(day) ? 'bg-blue-100 border-2 border-blue-600' : 'border border-gray-200'}
-                          ${isSelected ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}
-                          ${!isSelected && !isToday(day) ? 'text-gray-700' : ''}
+                          ${isToday(day) ? 'bg-accent border-2 border-primary' : 'border border-border'}
+                          ${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-accent'}
+                          ${!isSelected && !isToday(day) ? 'text-foreground' : ''}
                         `}
                       >
                         {day && (
@@ -160,9 +150,9 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
                                   <div
                                     key={i}
                                     className={`w-1.5 h-1.5 rounded-full ${
-                                      task.completed ? 'bg-green-500' : 
-                                      task.priority === 'alta' ? 'bg-red-500' :
-                                      task.priority === 'media' ? 'bg-yellow-500' :
+                                      task.completada ? 'bg-green-500' : 
+                                      task.prioridad === 'alta' ? 'bg-red-500' :
+                                      task.prioridad === 'media' ? 'bg-yellow-500' :
                                       'bg-blue-500'
                                     }`}
                                   />
@@ -181,8 +171,8 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
 
           {/* Task Details Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-24">
-              <h3 className="text-lg text-gray-900 mb-4">
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-6 sticky top-24">
+              <h3 className="text-lg text-foreground mb-4">
                 {selectedDate
                   ? `Tareas del ${selectedDate.getDate()} de ${monthNames[selectedDate.getMonth()]}`
                   : 'Selecciona un día'}
@@ -195,21 +185,21 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
                       <button
                         key={task.id}
                         onClick={() => onTaskClick(task)}
-                        className="w-full text-left bg-gray-50 hover:bg-gray-100 rounded-xl p-4 border border-gray-200 transition-colors"
+                        className="w-full text-left bg-muted hover:bg-accent rounded-xl p-4 border border-border transition-colors"
                       >
                         <div className="flex items-start gap-3 mb-2">
                           <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${
-                            task.completed ? 'bg-green-500' :
-                            task.priority === 'alta' ? 'bg-red-500' :
-                            task.priority === 'media' ? 'bg-yellow-500' :
+                            task.completada ? 'bg-green-500' :
+                            task.prioridad === 'alta' ? 'bg-red-500' :
+                            task.prioridad === 'media' ? 'bg-yellow-500' :
                             'bg-blue-500'
                           }`} />
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-gray-900 text-sm mb-1 truncate">{task.subject}</h4>
-                            <p className="text-xs text-gray-600 truncate">{task.type}</p>
+                            <h4 className="text-foreground text-sm mb-1 truncate">{task.materia}</h4>
+                            <p className="text-xs text-muted-foreground truncate">{task.tipo}</p>
                           </div>
                         </div>
-                        {task.completed && (
+                        {task.completada && (
                           <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200 text-xs">
                             Completada
                           </Badge>
@@ -219,37 +209,37 @@ export function CalendarView({ tasks, onBack, onTaskClick }: CalendarViewProps) 
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <BookOpen className="w-6 h-6 text-gray-400" />
+                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                      <BookOpen className="w-6 h-6 text-muted-foreground" />
                     </div>
-                    <p className="text-gray-500 text-sm">No hay tareas para este día</p>
+                    <p className="text-muted-foreground text-sm">No hay tareas para este día</p>
                   </div>
                 )
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-gray-400 text-sm">Haz clic en un día del calendario para ver las tareas</p>
+                  <p className="text-muted-foreground text-sm">Haz clic en un día del calendario para ver las tareas</p>
                 </div>
               )}
 
               {/* Legend */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="text-xs text-gray-600 mb-3">Leyenda</p>
+              <div className="mt-6 pt-6 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-3">Leyenda</p>
                 <div className="space-y-2 text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <span className="text-gray-600">Prioridad alta</span>
+                    <span className="text-muted-foreground">Prioridad alta</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <span className="text-gray-600">Prioridad media</span>
+                    <span className="text-muted-foreground">Prioridad media</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-blue-500" />
-                    <span className="text-gray-600">Prioridad baja</span>
+                    <span className="text-muted-foreground">Prioridad baja</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
-                    <span className="text-gray-600">Completada</span>
+                    <span className="text-muted-foreground">Completada</span>
                   </div>
                 </div>
               </div>
