@@ -15,12 +15,30 @@ export function Login({ onLogin }: LoginProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const user: User = { email, name: email.split('@')[0], isGuest: false };
+    const user: User = {
+      email,
+      name: email.split('@')[0],
+      isGuest: false,
+      streak: 0,
+      lastCompletionDate: null,
+      badges: [],
+      groupIds: [],
+      points: 0
+    };
     onLogin(user);
   };
 
   const handleGuestLogin = () => {
-    const user: User = { email: '', name: 'Invitado', isGuest: true };
+    const user: User = {
+      email: '',
+      name: 'Invitado',
+      isGuest: true,
+      streak: 0,
+      lastCompletionDate: null,
+      badges: [],
+      groupIds: [],
+      points: 0
+    };
     onLogin(user);
   };
 

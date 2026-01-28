@@ -5,14 +5,17 @@ import { TaskForm } from './components/TaskForm';
 import { TaskDetail } from './components/TaskDetail';
 import { CalendarView } from './components/CalendarView';
 import { History } from './components/History';
+import { Toaster } from './components/ui/sonner';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { useTheme } from '../hooks/useTheme';
-import { Task, User } from '../types';
+import { Task, User, Group } from '../types';
+import { updateStreakAndBadges } from '../utils/taskUtils';
 
 type View = 'login' | 'dashboard' | 'calendar' | 'history';
 
 export default function App() {
   const [user, setUser] = useLocalStorage<User | null>('taskSchool_user', null);
+  const [groups, setGroups] = useLocalStorage<Group[]>('taskSchool_groups', []);
   const [theme] = useTheme(); // Initialize theme
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentView, setCurrentView] = useState<View>('login');
@@ -36,8 +39,22 @@ export default function App() {
     localStorage.setItem(key, JSON.stringify(tasks));
   }, [tasks, user]);
 
+  // Update streak and badges when tasks or user change
+  useEffect(() => {
+    updateStreakAndBadges(tasks, user, setUser);
+  }, [tasks, user, setUser]);
+
   const handleLogin = (user: User) => {
-    setUser(user);
+    // Asegurar que los nuevos campos estén inicializados
+    const updatedUser: User = {
+      ...user,
+      streak: user.streak ?? 0,
+      lastCompletionDate: user.lastCompletionDate ?? null,
+      badges: user.badges ?? [],
+      groupIds: user.groupIds ?? [],
+      points: user.points ?? 0
+    };
+    setUser(updatedUser);
     setIsLoggedIn(true);
     setCurrentView('dashboard');
   };
@@ -133,6 +150,10 @@ export default function App() {
           onViewCalendar={handleViewCalendar}
           onViewHistory={handleViewHistory}
           onLogout={handleLogout}
+          user={user}
+          setUser={setUser}
+          groups={groups}
+          setGroups={setGroups}
         />
       )}
 
@@ -168,6 +189,7 @@ export default function App() {
           onToggleComplete={handleToggleComplete}
         />
       )}
+      <Toaster position="top-right" richColors />
     </div>
   );
 }

@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Plus, BookOpen, Edit, Check, Calendar, BarChart3, LogOut, Smile } from 'lucide-react';
+import { Plus, BookOpen, Edit, Check, Calendar, BarChart3, LogOut, Smile, TrendingUp, Award } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Badge } from './ui/badge';
 import { ThemeToggle } from './ui/ThemeToggle';
-import { Task } from '../../types';
+import { CreateGroupDialog } from './CreateGroupDialog';
+import { JoinGroupDialog } from './JoinGroupDialog';
+import { Task, User, Group } from '../../types';
 
 interface DashboardProps {
   onAddTask: () => void;
@@ -15,6 +17,10 @@ interface DashboardProps {
   onViewHistory: () => void;
   onLogout: () => void;
   tasks: Task[];
+  user: User | null;
+  setUser: (user: User) => void;
+  groups: Group[];
+  setGroups: (groups: Group[]) => void;
 }
 
 export function Dashboard({
@@ -26,6 +32,10 @@ export function Dashboard({
   onViewHistory,
   onLogout,
   tasks,
+  user,
+  setUser,
+  groups,
+  setGroups,
 }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('pending');
 
@@ -166,6 +176,45 @@ export function Dashboard({
         </div>
       </header>
 
+      {/* Streak and Badges Section */}
+      {user && (
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
+          <div className="bg-card rounded-xl border border-border p-4 md:p-6 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="text-foreground font-medium">Racha actual</h3>
+                  <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                    {user.streak || 0} días
+                  </p>
+                </div>
+              </div>
+              {user.badges && user.badges.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <Award className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                  <div className="flex flex-wrap gap-2">
+                    {user.badges.map((badge, index) => (
+                      <Badge key={index} variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+                        {badge}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {!user.isGuest && (
+                <div className="flex gap-2 flex-wrap">
+                  <CreateGroupDialog user={user} groups={groups} setGroups={setGroups} setUser={setUser} />
+                  <JoinGroupDialog user={user} groups={groups} setGroups={setGroups} setUser={setUser} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -197,7 +246,7 @@ export function Dashboard({
                   <Smile className="w-8 h-8 text-accent-foreground" />
                 </div>
                 <h3 className="text-foreground mb-2">¡Aún no tienes tareas!</h3>
-                <p className="text-muted-foreground">Agrega una con el botón + 😊</p>
+                <p className="text-muted-foreground">Agrega una con el botón + 😁</p>
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
