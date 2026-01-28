@@ -1,4 +1,4 @@
-# PROJECT_NOTES.md - Estado Actual de TaskSchool (22 enero 2026)
+# PROJECT_NOTES.md - Estado Actual de TaskSchool (27 enero 2026)
 
 **IMPORTANTE PARA COPILOT / IA**:  
 Usa SOLO esta información como referencia del estado real del proyecto. Ignora cualquier cosa anterior que contradiga esto.
@@ -8,22 +8,22 @@ Usa SOLO esta información como referencia del estado real del proyecto. Ignora 
 - URL live: https://task-school-eight.vercel.app
 - Diseño minimalista, colores por materia y prioridad (rojo alta, amarillo media, azul baja, verde completada).
 - Tema oscuro/claro automático (prefers-color-scheme) + toggle manual con íconos sol/luna/monitor.
-- Persistencia con localStorage implementada (tareas y usuario logueado).
+- Persistencia con localStorage implementada (tareas, usuario, theme, streaks, badges).
 
 ## Features ya implementadas y funcionales
-- Login / bienvenida con email-contraseña, "Entrar", "Empezar sin cuenta", link registro.
-- Dashboard: tabs pendientes/completadas, tarjetas con detalles, botón +.
-- Modal Nueva Tarea: dropdown materia, tipo, descripción, fechas picker, prioridad radios.
-- Detalle tarea: modal con info completa, marcar completada, adjuntar foto.
-- Calendario: mensual interactivo, clics en días muestran tareas.
-- Historial: filtros materia/mes, % completadas, gráfico simple, export PDF/CSV.
+- Login: Email/password simulado + guest mode.
+- Dashboard: Tabs para pendientes/completadas, streaks con contador (TrendingUp icon), badges mostrados (Award icon).
+- Formulario tareas: Crear/editar con materia, tipo, desc, fechas, prioridad, imagen.
+- Detalle tarea: Ver/editar/completar.
+- Calendario: Vista mensual con dots coloreados por prioridad/completado.
+- Historial: Lista filtrable por materia/mes, stats de completadas, gráfico simple, export PDF/CSV.
+- Streaks y Badges: Automático (updateStreakAndBadges), badges por hitos (3/7/14/30 días), visual en dashboard.
 - Persistencia: localStorage ('taskSchool_tasks', 'taskSchool_user', 'taskSchool_theme').
-- Tema: consistente en la mayoría de pantallas (arreglando colados en login/modal/calendario).
+- Tema: consistente en todas pantallas.
 
 ## Lo que falta / Próximos objetivos
-- Simular modo competitivo (grupos, invitaciones, ranking, leaderboard).
-- Agregar streak counter y badges.
-- Mejorar UX dark mode (menos "cripi").
+- Simular modo competitivo (grupos, invitaciones, ranking, leaderboard) - EN PROGRESO.
+- Agregar streak counter y badges - COMPLETADO.
 - Integrar DB real (Firebase).
 
 ## Notas técnicas
@@ -31,4 +31,4 @@ Usa SOLO esta información como referencia del estado real del proyecto. Ignora 
 - Claves localStorage: 'taskSchool_tasks', 'taskSchool_user', 'taskSchool_theme'.
 - Mantén el código limpio y no rompas lo que ya funciona.
 
-¡Este es el estado real al 22 de enero 2026! Usa esto siempre como base.
+¡Este es el estado real al 27 de enero 2026! Usa esto siempre como base.
